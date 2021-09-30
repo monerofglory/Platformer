@@ -1,4 +1,9 @@
 #pragma once
+#include <string>
+
 float getPlayerX();
 float getPlayerY();
-void updatePlayerPosition(float x, float y);
+void ReversePlayerDirection();
+void updatePlayerPosition(int dT);
+bool isPlayerJumping();
+void setPlayerJumping();

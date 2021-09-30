@@ -3,11 +3,26 @@
 #include <stdlib.h>
 #include <tuple>
 #include <list>
+#include <string>
+
 #include "Player.h"
 
 using namespace std;
+//Graphical variables
+int windowX = 640, windowY = 480;
+//Player dimensions
+int playerWidth = 10;
+int playerHeight = 20;
+
 int rx = 100, ry = 125;
 int xCenter = 250, yCenter = 250;
+
+float testCounter = 0;
+
+int framerate = 60;
+int deltaTime = 0;
+int startTime = 0;
+int currentTime = 0;
 
 void myinit(void)
 {
@@ -27,6 +42,7 @@ void setPixel(GLint x, GLint y)
 //Function for drawing the platform.
 //Takes in the current co-ordinates, and a width and height of the rectangle.
 void drawPlatform(float xpos, float ypos, float width, float height) {
+	testCounter++;
 	glColor3ub(255, 0.0, 0.0); //Set colour
 	glBegin(GL_QUADS);
 	//Set vertices
@@ -46,9 +62,9 @@ void drawPlayer(float playerX, float playerY) {
 	glBegin(GL_QUADS);
 	//Set vertices. Where added numbers indicate player size.
 	glVertex2i(playerX, playerY);
-	glVertex2i(playerX + 10, playerY);
-	glVertex2i(playerX + 10, playerY + 20);
-	glVertex2i(playerX, playerY + 20);
+	glVertex2i(playerX + playerWidth, playerY);
+	glVertex2i(playerX + playerWidth, playerY + playerHeight);
+	glVertex2i(playerX, playerY + playerHeight);
 	//Flush to screen.
 	glEnd();
 	glFlush();
@@ -60,20 +76,46 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPointSize(2.0);
 	//Draw platform and player.
-	drawPlatform(300, 300, 200, 100);
+	drawPlatform(20, 25 + testCounter, 100, 10);
 	drawPlayer(getPlayerX(), getPlayerY());
 	//Flush to screen.
 	glFlush();
 }
 
-void keyPressed(unsigned char key, int x, int y) {
-	if (key == 'a') {
-		updatePlayerPosition(getPlayerX() - 3, getPlayerY());
+void KeyPressed(unsigned char key, int x, int y) {
+	if (key == 32) {
+		ReversePlayerDirection();
 	}
-	else if (key == 'd') {
-		updatePlayerPosition(getPlayerX() + 3, getPlayerY());
+	if (key == 'w') {
+		if (!isPlayerJumping()) {
+			setPlayerJumping();
+		}
 	}
-	display();
+}
+
+void checkPlayerPositions() {
+	//cout << getPlayerX() << "\n";
+	if (getPlayerX() >= windowX - playerWidth) {
+		ReversePlayerDirection();
+	}
+	if (getPlayerX() <= 0) {
+		ReversePlayerDirection();
+	}
+}
+
+void update() {
+	//Get timings
+	currentTime = glutGet(GLUT_ELAPSED_TIME);
+	deltaTime = currentTime - startTime;
+	if (deltaTime >= (1000 / framerate)) {
+		//1 frame workload
+		//Update player position
+		updatePlayerPosition(deltaTime);
+		//Check player positions
+		checkPlayerPositions();
+		startTime = currentTime;
+		display();
+	}
 }
 
 int main(int argc, char** argv)
@@ -84,7 +126,8 @@ int main(int argc, char** argv)
 	glutCreateWindow("User_Name");
 	myinit();
 	glutDisplayFunc(display);
-	glutKeyboardFunc(keyPressed);
+	glutIdleFunc(update);
+	glutKeyboardFunc(KeyPressed);
 	glutMainLoop();
 	return 0;
 }
