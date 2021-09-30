@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <tuple>
 #include <list>
+#include "Player.h"
 
 using namespace std;
 int rx = 100, ry = 125;
@@ -10,7 +11,7 @@ int xCenter = 250, yCenter = 250;
 
 void myinit(void)
 {
-	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0.0, 640.0, 0.0, 480.0);
@@ -23,8 +24,30 @@ void setPixel(GLint x, GLint y)
 	glEnd();
 }
 
+void drawPlatform(float xpos, float ypos, float width, float height) {
+	glColor3ub(255, 0.0, 0.0);
+	glBegin(GL_QUADS);
+	glVertex2i(xpos, ypos);
+	glVertex2i(xpos + width, ypos);
+	glVertex2i(xpos + width, ypos + height);
+	glVertex2i(xpos, ypos + height);
+	glEnd();
+	glFlush();
+}
+
+void drawPlayer(float playerX, float playerY) {
+	glColor3ub(0, 0, 255);
+	glBegin(GL_QUADS);
+	glVertex2i(playerX, playerY);
+	glVertex2i(playerX + 10, playerY);
+	glVertex2i(playerX + 10, playerY + 20);
+	glVertex2i(playerX, playerY + 20);
+	glEnd();
+	glFlush();
+}
+
 void drawShape(list<float> shape) {
-	glColor3ub(rand() % 255, rand() % 255, rand() % 255);
+	glColor3ub(0.0,0.0, 1.0);
 	glBegin(GL_LINE_LOOP);
 	while (shape.size() > 0) {
 		float x = shape.front();
@@ -40,7 +63,6 @@ void drawShape(list<float> shape) {
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 0.0, 0.0);
 	glPointSize(2.0);
 	//Shape
 	list<float> triangle;
@@ -52,7 +74,19 @@ void display()
 	triangle.push_back(50);
 	triangle.push_back(101);
 	drawShape(triangle);
+	drawPlatform(300, 300, 200, 100);
+	drawPlayer(getPlayerX(), getPlayerY());
 	glFlush();
+}
+
+void keyPressed(unsigned char key, int x, int y) {
+	if (key == 'a') {
+		updatePlayerPosition(getPlayerX() - 3, getPlayerY());
+	}
+	else if (key == 'd') {
+		updatePlayerPosition(getPlayerX() + 3, getPlayerY());
+	}
+	display();
 }
 
 int main(int argc, char** argv)
@@ -63,6 +97,7 @@ int main(int argc, char** argv)
 	glutCreateWindow("User_Name");
 	myinit();
 	glutDisplayFunc(display);
+	glutKeyboardFunc(keyPressed);
 	glutMainLoop();
 	return 0;
 }
