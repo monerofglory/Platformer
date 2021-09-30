@@ -24,58 +24,45 @@ void setPixel(GLint x, GLint y)
 	glEnd();
 }
 
+//Function for drawing the platform.
+//Takes in the current co-ordinates, and a width and height of the rectangle.
 void drawPlatform(float xpos, float ypos, float width, float height) {
-	glColor3ub(255, 0.0, 0.0);
+	glColor3ub(255, 0.0, 0.0); //Set colour
 	glBegin(GL_QUADS);
+	//Set vertices
 	glVertex2i(xpos, ypos);
 	glVertex2i(xpos + width, ypos);
 	glVertex2i(xpos + width, ypos + height);
 	glVertex2i(xpos, ypos + height);
+	//Flush to screen.
 	glEnd();
 	glFlush();
 }
 
+//Function for drawing the player.
+//Takes in the co-ordinates of their location.
 void drawPlayer(float playerX, float playerY) {
-	glColor3ub(0, 0, 255);
+	glColor3ub(0, 0, 255); //Set player colour.
 	glBegin(GL_QUADS);
+	//Set vertices. Where added numbers indicate player size.
 	glVertex2i(playerX, playerY);
 	glVertex2i(playerX + 10, playerY);
 	glVertex2i(playerX + 10, playerY + 20);
 	glVertex2i(playerX, playerY + 20);
-	glEnd();
-	glFlush();
-}
-
-void drawShape(list<float> shape) {
-	glColor3ub(0.0,0.0, 1.0);
-	glBegin(GL_LINE_LOOP);
-	while (shape.size() > 0) {
-		float x = shape.front();
-		shape.pop_front();
-		float y = shape.front();
-		shape.pop_front();
-		glVertex2i(x, y);
-	}
+	//Flush to screen.
 	glEnd();
 	glFlush();
 }
 
 void display()
 {
+	//Clear Screen
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPointSize(2.0);
-	//Shape
-	list<float> triangle;
-	//Points of triangle
-	triangle.push_back(25);
-	triangle.push_back(25);
-	triangle.push_back(78);
-	triangle.push_back(78);
-	triangle.push_back(50);
-	triangle.push_back(101);
-	drawShape(triangle);
+	//Draw platform and player.
 	drawPlatform(300, 300, 200, 100);
 	drawPlayer(getPlayerX(), getPlayerY());
+	//Flush to screen.
 	glFlush();
 }
 

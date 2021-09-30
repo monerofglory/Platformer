@@ -3,6 +3,7 @@
 float playerX;
 float playerY;
 
+//Update player position.
 void updatePlayerPosition(float x, float y) {
 	playerX = x;
 	playerY = y;
