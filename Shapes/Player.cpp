@@ -13,17 +13,21 @@ bool jumping = false;
 float framesSinceJump = 0;
 
 //Location
-float playerX = 50;
-float playerY = 50;
+float playerX = 300;
+float playerY = 400;
 
 //Movement
 bool Left = false; //Capital L due to ambiguity.
-float walkingSpeed = 100;
+float walkingSpeed = 250;
 float startY;
-float jumpHeight = 25;
+float jumpHeight = 100;
+bool onFloor = false;
 
-void ReversePlayerDirection() {
-	if (!jumping) {
+void ReversePlayerDirection(bool overrule) {
+	if ((!jumping) && (onFloor)) {
+		Left = !Left;
+	}
+	else if (overrule) {
 		Left = !Left;
 	}
 }
@@ -40,9 +44,14 @@ void updatePlayerPosition(int dT) {
 		playerY = startY + (sinf((framesSinceJump / 60) * M_PI) * jumpHeight);
 		framesSinceJump++;
 		if (framesSinceJump == 60) {
+			playerY = startY;
 			jumping = false;
 			framesSinceJump = 0;
 		}
+	}
+	//Gravity
+	if (!onFloor) {
+		playerY -= 3;
 	}
 }
 
@@ -52,6 +61,18 @@ float getPlayerX() {
 
 float getPlayerY() {
 	return playerY;
+}
+
+void setPlayerX(float x) {
+	playerX = x;
+}
+
+void setPlayerY(float y) {
+	playerY = y;
+}
+
+void setColliding(bool t) {
+	onFloor = t;
 }
 
 bool isPlayerJumping() {
