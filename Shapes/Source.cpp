@@ -15,33 +15,24 @@ int windowX = 640, windowY = 480;
 //Player dimensions
 int playerWidth = 10;
 int playerHeight = 20;
-
-int rx = 100, ry = 125;
-int xCenter = 250, yCenter = 250;
-
-float testCounter = 0;
-
+//Timing variables
 int framerate = 60;
 int deltaTime = 0;
 int startTime = 0;
 int currentTime = 0;
-
-
+//Collision variables
 bool previousTop = false;
-
 //Platforms and floor
 vector<int> gameFloor = { 0, 0, windowX, 8 };
-
 //List of all platforms
 vector<vector<int>> platforms;
-
 //star score
-vector<int> score;// = { 50, 50, 50, 50 };
+vector<int> score;
 
 void createPlatforms() {
 	platforms.clear();
-	srand(time(0));
-	int numberOfPlatforms = 3;//rand() % 5 + 2;
+	srand(time(0)); //Seed
+	int numberOfPlatforms = 3;
 	for (int i = 0; i <= numberOfPlatforms; i++) {
 		vector<int> p = { 
 			rand() % (windowX - 250) + 50 ,  //X position
@@ -52,6 +43,7 @@ void createPlatforms() {
 	}
 }
 
+//Generate the location of the score square
 void generateScore() {
 	srand(time(0));
 	int platformChoice = rand() % platforms.size();
@@ -66,13 +58,6 @@ void myinit(void)
 	gluOrtho2D(0.0, windowX, 0.0, windowY);
 	createPlatforms();
 	generateScore();
-}
-
-void setPixel(GLint x, GLint y)
-{
-	glBegin(GL_POINTS);
-	glVertex2d(x, y);
-	glEnd();
 }
 
 //Function for drawing the platform.
@@ -133,27 +118,29 @@ void display()
 	glFlush();
 }
 
+//Function for keypresses
 void KeyPressed(unsigned char key, int x, int y) {
 	if (key == 32) { //Space bar
 		previousTop = false;
 		ReversePlayerDirection(false);
 	}
-	if (key == 'w') {
+	if (key == 'w') { //Jump
 		if ((!isPlayerJumping()) && (isPlayerOnFloor())) {
 			previousTop = false;
 			setPlayerJumping();
 		}
 	}
-	if (key == 'r') {
+	if (key == 'r') { //Reset platforms.
 		createPlatforms();
 		generateScore();
 	}
 }
 
 
+//Checks if one of the points of the player is inside the object.
+//Uses bitwise AND to find out. Used mainly for left/right sides of player.
 bool checkIfPlayerInsideVertical(vector<int> p, vector<int> obj) {
 	bool inside = false;
-
 	int lX = obj.at(0); //Left X
 	int rX = obj.at(0) + obj.at(2); //Right X
 	int bY = obj.at(1); //Bottom Y
@@ -166,9 +153,10 @@ bool checkIfPlayerInsideVertical(vector<int> p, vector<int> obj) {
 	return inside;
 }
 
+//Checks if both points of the player is inside the object.
+//Uses bitwise AND to find out. Used mainly for top/bottom sides of player.
 bool checkIfPlayerInsideHorizontal(vector<int> p, vector<int> obj) {
 	bool inside = false;
-
 	int lX = obj.at(0); //Left X
 	int rX = obj.at(0) + obj.at(2); //Right X
 	int bY = obj.at(1); //Bottom Y
@@ -239,7 +227,7 @@ void checkCollisions() {
 	}
 }
 
-
+//Function to prevent player moving over the sides of the window.
 void checkPlayerPositions() {
 	if (getPlayerX() >= windowX - playerWidth) {
 		ReversePlayerDirection(true);
@@ -253,8 +241,7 @@ void update() {
 	//Get timings
 	currentTime = glutGet(GLUT_ELAPSED_TIME);
 	deltaTime = currentTime - startTime;
-	if (deltaTime >= (1000 / framerate)) {
-		//1 frame workload
+	if (deltaTime >= (1000 / framerate)) { // One frame
 		//Update player position
 		updatePlayerPosition(deltaTime);
 		//Check player positions
@@ -274,7 +261,6 @@ int main(int argc, char** argv)
 	glutInitWindowSize(windowX, windowY);
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Platformer");
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	myinit();
 	glutDisplayFunc(display);
 	glutIdleFunc(update);
