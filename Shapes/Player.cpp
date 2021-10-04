@@ -20,16 +20,21 @@ float playerY = 400;
 bool Left = false; //Capital L due to ambiguity.
 float walkingSpeed = 250;
 float startY;
-float jumpHeight = 100;
-bool onFloor = false;
+float jumpHeight = 150;
+bool jumpCollisionChange = false;
+
+bool floorCollide = false;
+bool topCollide = false;
+bool sideCollide = false;
 
 void ReversePlayerDirection(bool overrule) {
-	if ((!jumping) && (onFloor)) {
-		Left = !Left;
-	}
-	else if (overrule) {
-		Left = !Left;
-	}
+	//if ((!jumping) && (floorCollide)) {
+	//	Left = !Left;
+	//}
+	//else if (overrule) {
+	//	Left = !Left;
+	//}
+	Left = !Left;
 }
 
 //Update player position.
@@ -43,20 +48,22 @@ void updatePlayerPosition(int dT) {
 	if (jumping) {
 		playerY = startY + (sinf((framesSinceJump / 60) * M_PI) * jumpHeight);
 		framesSinceJump++;
-		if (onFloor) {
+		if (floorCollide) {
 			jumping = false;
+			jumpCollisionChange = false;
 			framesSinceJump = 0;
 		}
 		if (framesSinceJump == 60) {
 			playerY = startY;
 			jumping = false;
+			jumpCollisionChange = false;
 			framesSinceJump = 0;
 		}
 		
 	}
 	//Gravity
-	if (!onFloor) {
-		playerY -= 3;
+	if (!floorCollide) {
+		playerY -= 6;
 	}
 }
 
@@ -76,8 +83,21 @@ void setPlayerY(float y) {
 	playerY = y;
 }
 
-void setColliding(bool t) {
-	onFloor = t;
+void setColliding(string surface, bool t) {
+	if (surface == "none") {
+		floorCollide = t; 
+		topCollide = t;
+		sideCollide = t;
+	}
+	else if (surface == "top") { 
+		topCollide = t; 
+		if (!jumpCollisionChange) {
+			framesSinceJump = 60 - framesSinceJump;
+			jumpCollisionChange = true;
+		}
+	}
+	else if (surface == "bottom") { floorCollide = t; }
+	else if (surface == "side") { ReversePlayerDirection(true); }
 }
 
 bool isPlayerJumping() {
@@ -87,7 +107,7 @@ bool isPlayerJumping() {
 void setPlayerJumping() {
 	jumping = true;
 	framesSinceJump = 1;
-	setColliding(false);
+	setColliding("none", false);
 	startY = playerY;
 }
 

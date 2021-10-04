@@ -7,7 +7,7 @@ void ReversePlayerDirection(bool overrule);
 void updatePlayerPosition(int dT);
 void setPlayerX(float x);
 void setPlayerY(float y);
-void setColliding(bool t);
+void setColliding(std::string surface, bool t);
 bool isPlayerJumping();
 void setPlayerJumping();
 float getPlayerFramesSinceJump();

@@ -10,7 +10,7 @@
 
 using namespace std;
 //Graphical variables
-int windowX = 640, windowY = 480;
+int windowX = 1920, windowY = 1080;
 //Player dimensions
 int playerWidth = 10;
 int playerHeight = 20;
@@ -26,10 +26,10 @@ int startTime = 0;
 int currentTime = 0;
 
 //Platforms and floor
-vector<int> gameFloor = { 0, 0, windowX, 5 };
-vector<int> platform1 = { 20, 55, 100, 20 };
-vector<int> platform2 = { 200, 300, 100, 20 };
-vector<int> platform3 = { 500, 355, 100, 20 };
+vector<int> gameFloor = { 0, 0, windowX, 8 };
+vector<int> platform1 = { 20, 75, 100, 25 };
+vector<int> platform2 = { 90, 175, 100, 25 };
+vector<int> platform3 = { 500, 355, 100, 25 };
 
 //List of all platforms
 
@@ -94,9 +94,9 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPointSize(2.0);
 	//Draw platform and player.
+	drawPlayer(getPlayerX(), getPlayerY());
 	drawPlatform(gameFloor);
 	drawAllPlatforms(platforms);
-	drawPlayer(getPlayerX(), getPlayerY());
 	//Flush to screen.
 	glFlush();
 }
@@ -112,22 +112,42 @@ void KeyPressed(unsigned char key, int x, int y) {
 	}
 }
 
-bool checkIfPlayerUnder2(vector<int> p, vector<int> obj) {
-	//First check if in the same x range
-	if ((p.at(0) >= obj.at(0)) && (p.at(0) <= (obj.at(0) + obj.at(2)))) {
-		//Correct X range
-		if ((p.at(1)) <= (obj.at(1) + obj.at(3))) {
-			//Player is below object
-			if ((p.at(1) + playerHeight) < (obj.at(1))) {
-				//But not completely below
-				setPlayerY(obj.at(1) + obj.at(3));
-				return true;
-			}
-		}
-	}
+
+bool checkIfPlayerInsideVertical(vector<int> p, vector<int> obj) {
+	bool inside = false;
+
+	int lX = obj.at(0); //Left X
+	int rX = obj.at(0) + obj.at(2); //Right X
+	int bY = obj.at(1); //Bottom Y
+	int tY = obj.at(1) + obj.at(3); // Top Y
+	//Check x bounds
+	inside = ((p.at(0) >= lX) && (p.at(0) <= rX));
+	//Check y bounds
+	inside = inside & ((p.at(1) >= bY) && (p.at(1) <= tY));
+	//If both, then inside
+	return inside;
 }
 
-bool checkIfPlayerUnder(vector<int> p, vector<int> obj) {
+bool checkIfPlayerInsideHorizontal(vector<int> p, vector<int> obj) {
+	bool inside = false;
+
+	int lX = obj.at(0); //Left X
+	int rX = obj.at(0) + obj.at(2); //Right X
+	int bY = obj.at(1); //Bottom Y
+	int tY = obj.at(1) + obj.at(3); // Top Y
+	//Check x bounds
+	inside = ((p.at(0) >= lX) && (p.at(0) <= rX));
+	//Check y bounds
+	inside = inside & ((p.at(1) >= bY) && (p.at(1) <= tY));
+	//Check x bounds
+	inside = inside & ((p.at(2) >= lX) && (p.at(2) <= rX));
+	//Check y bounds
+	inside = inside & ((p.at(3) >= bY) && (p.at(3) <= tY));
+	//If both, then inside
+	return inside;
+}
+
+bool checkIfPlayerInsideHorizontal2(vector<int> p, vector<int> obj) {
 	bool xInside = false;
 	bool yInside = false;
 
@@ -136,42 +156,59 @@ bool checkIfPlayerUnder(vector<int> p, vector<int> obj) {
 	int bY = obj.at(1); //Bottom Y
 	int tY = obj.at(1) + obj.at(3); // Top Y
 	//Check x bounds
-	if ((p.at(0) >= lX) && (p.at(0) <= rX) ) {
+	if ((p.at(0) >= lX) && (p.at(0) <= rX)) {
 		xInside = true;
-		//printf("XTRUE");
 	}
 	//Check y bounds
-	if ((p.at(1) >= bY) && (p.at(1) <= tY)){
+	if ((p.at(1) >= bY) && (p.at(1) <= tY)) {
 		yInside = true;
-		//printf("YTRUE");
 	}
 
 	//If both, then inside
 	return xInside & yInside;
-
 }
 
+
+int pCP = 0; //PlayerCollisionPadding
 void checkCollisions() {
 	//Get player positions
 	int px = getPlayerX();
 	int py = getPlayerY();
-	vector<int> playerTop = { px, py + playerHeight, px + playerWidth, py + playerHeight };
-	vector<int> playerBottom = { px, py, px + playerWidth, py};
+	vector<int> playerTop = { px, py + playerHeight + pCP, px + playerWidth, py + playerHeight + pCP };
+	vector<int> playerBottom = { px, py - pCP, px + playerWidth, py - pCP};
+	vector<int> playerLeft = { px - pCP, py, px - pCP, py + playerHeight };
+	vector<int> playerRight = { px + playerWidth, py, px + playerWidth, py + playerHeight };
 	//Default collision to false
-	setColliding(false);
+	setColliding("none", false);
 	//Check collissions with other platforms
 	for (int i = 0; i <= platforms.size() - 1; i++) {
-		if (checkIfPlayerUnder(playerBottom, platforms.at(i))) {
-			printf("setting y to %d", platforms.at(i).at(1));
-			setPlayerY(platforms.at(i).at(1) + platforms.at(i).at(3));
-			setColliding(true);
-			printf("ONPLATFORM\n");
+
+		if (checkIfPlayerInsideHorizontal(playerTop, platforms.at(i))) {
+			//If player bounces into the bottom of a platform
+			setColliding("top", true);
+			setPlayerY(platforms.at(i).at(1) - playerHeight);
+			printf("TOP\n");
 		}
+		else if (checkIfPlayerInsideHorizontal(playerBottom, platforms.at(i))) {
+			setPlayerY(platforms.at(i).at(1) + platforms.at(i).at(3));
+			setColliding("bottom", true);
+			printf("BOTTOM\n");
+		}
+		else if ((checkIfPlayerInsideVertical(playerLeft, platforms.at(i))) || (checkIfPlayerInsideVertical(playerRight, platforms.at(i))) ) {
+			//Check if still on a platform
+			//if (!checkIfPlayerInsideVertical(playerBottom, platforms.at(i))) {
+			//	printf("SIDE\n");
+			//	setColliding("side", true);
+			//}
+			if (isPlayerJumping()) {
+				setColliding("side", true);
+			}
+		}
+	
 	}
 	//Check collision with floor
-	if (checkIfPlayerUnder(playerBottom, gameFloor)) {
-		setColliding(true);
-		printf("ON FLOOR\n");
+	if (checkIfPlayerInsideVertical(playerBottom, gameFloor)) {
+		setColliding("bottom", true);
 		setPlayerY(gameFloor.at(1) + gameFloor.at(3));
 	}
 }
