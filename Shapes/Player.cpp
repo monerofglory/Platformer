@@ -114,3 +114,7 @@ void setPlayerJumping() {
 float getPlayerFramesSinceJump() {
 	return framesSinceJump;
 }
+
+bool isPlayerOnFloor() {
+	return floorCollide;
+}

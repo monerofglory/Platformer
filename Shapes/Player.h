@@ -11,3 +11,4 @@ void setColliding(std::string surface, bool t);
 bool isPlayerJumping();
 void setPlayerJumping();
 float getPlayerFramesSinceJump();
+bool isPlayerOnFloor();

@@ -25,6 +25,9 @@ int deltaTime = 0;
 int startTime = 0;
 int currentTime = 0;
 
+
+bool previousTop = false;
+
 //Platforms and floor
 vector<int> gameFloor = { 0, 0, windowX, 8 };
 vector<int> platform1 = { 20, 75, 100, 25 };
@@ -32,7 +35,6 @@ vector<int> platform2 = { 90, 175, 100, 25 };
 vector<int> platform3 = { 500, 355, 100, 25 };
 
 //List of all platforms
-
 vector<vector<int>> platforms = { platform1, platform2, platform3 };
 
 void myinit(void)
@@ -103,10 +105,12 @@ void display()
 
 void KeyPressed(unsigned char key, int x, int y) {
 	if (key == 32) { //Space bar
+		previousTop = false;
 		ReversePlayerDirection(false);
 	}
 	if (key == 'w') {
-		if (!isPlayerJumping()) {
+		if ((!isPlayerJumping()) && (isPlayerOnFloor())) {
+			previousTop = false;
 			setPlayerJumping();
 		}
 	}
@@ -147,27 +151,6 @@ bool checkIfPlayerInsideHorizontal(vector<int> p, vector<int> obj) {
 	return inside;
 }
 
-bool checkIfPlayerInsideHorizontal2(vector<int> p, vector<int> obj) {
-	bool xInside = false;
-	bool yInside = false;
-
-	int lX = obj.at(0); //Left X
-	int rX = obj.at(0) + obj.at(2); //Right X
-	int bY = obj.at(1); //Bottom Y
-	int tY = obj.at(1) + obj.at(3); // Top Y
-	//Check x bounds
-	if ((p.at(0) >= lX) && (p.at(0) <= rX)) {
-		xInside = true;
-	}
-	//Check y bounds
-	if ((p.at(1) >= bY) && (p.at(1) <= tY)) {
-		yInside = true;
-	}
-
-	//If both, then inside
-	return xInside & yInside;
-}
-
 void checkCollisions() {
 	//Get player positions
 	int px = getPlayerX();
@@ -185,12 +168,15 @@ void checkCollisions() {
 			//If player bounces into the bottom of a platform
 			setColliding("top", true);
 			setPlayerY(platforms.at(i).at(1) - playerHeight);
+			previousTop = true;
 			printf("TOP\n");
 		}
 		else if (checkIfPlayerInsideHorizontal(playerBottom, platforms.at(i))) {
-			setPlayerY(platforms.at(i).at(1) + platforms.at(i).at(3));
-			setColliding("bottom", true);
-			printf("BOTTOM\n");
+			if (!previousTop) {
+				setPlayerY(platforms.at(i).at(1) + platforms.at(i).at(3));
+				setColliding("bottom", true);
+				printf("BOTTOM\n");
+			}
 		}
 		else if ((checkIfPlayerInsideVertical(playerLeft, platforms.at(i))) || (checkIfPlayerInsideVertical(playerRight, platforms.at(i))) ) {
 			//Check if still on a platform
@@ -201,6 +187,7 @@ void checkCollisions() {
 			if (isPlayerJumping()) {
 				setColliding("side", true);
 			}
+			previousTop = false;
 		}
 	
 	}
