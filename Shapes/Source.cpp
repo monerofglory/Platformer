@@ -10,7 +10,7 @@
 
 using namespace std;
 //Graphical variables
-int windowX = 1920, windowY = 1080;
+int windowX = 640, windowY = 480;
 //Player dimensions
 int playerWidth = 10;
 int playerHeight = 20;
@@ -40,7 +40,7 @@ void myinit(void)
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0.0, 640.0, 0.0, 480.0);
+	gluOrtho2D(0.0, windowX, 0.0, windowY);
 }
 
 void setPixel(GLint x, GLint y)
@@ -168,15 +168,13 @@ bool checkIfPlayerInsideHorizontal2(vector<int> p, vector<int> obj) {
 	return xInside & yInside;
 }
 
-
-int pCP = 0; //PlayerCollisionPadding
 void checkCollisions() {
 	//Get player positions
 	int px = getPlayerX();
 	int py = getPlayerY();
-	vector<int> playerTop = { px, py + playerHeight + pCP, px + playerWidth, py + playerHeight + pCP };
-	vector<int> playerBottom = { px, py - pCP, px + playerWidth, py - pCP};
-	vector<int> playerLeft = { px - pCP, py, px - pCP, py + playerHeight };
+	vector<int> playerTop = { px, py + playerHeight, px + playerWidth, py + playerHeight };
+	vector<int> playerBottom = { px, py, px + playerWidth, py};
+	vector<int> playerLeft = { px, py, px, py + playerHeight };
 	vector<int> playerRight = { px + playerWidth, py, px + playerWidth, py + playerHeight };
 	//Default collision to false
 	setColliding("none", false);
@@ -245,7 +243,7 @@ void update() {
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitWindowSize(640, 480);
+	glutInitWindowSize(windowX, windowY);
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("User_Name");
 	myinit();
