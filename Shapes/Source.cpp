@@ -39,6 +39,7 @@ vector<vector<int>> platforms;
 vector<int> score;// = { 50, 50, 50, 50 };
 
 void createPlatforms() {
+	platforms.clear();
 	srand(time(0));
 	int numberOfPlatforms = 3;//rand() % 5 + 2;
 	for (int i = 0; i <= numberOfPlatforms; i++) {
@@ -142,6 +143,10 @@ void KeyPressed(unsigned char key, int x, int y) {
 			previousTop = false;
 			setPlayerJumping();
 		}
+	}
+	if (key == 'r') {
+		createPlatforms();
+		generateScore();
 	}
 }
 
