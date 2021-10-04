@@ -30,12 +30,22 @@ bool previousTop = false;
 
 //Platforms and floor
 vector<int> gameFloor = { 0, 0, windowX, 8 };
-vector<int> platform1 = { 20, 75, 100, 25 };
-vector<int> platform2 = { 90, 175, 100, 25 };
-vector<int> platform3 = { 500, 355, 100, 25 };
 
 //List of all platforms
-vector<vector<int>> platforms = { platform1, platform2, platform3 };
+vector<vector<int>> platforms;
+
+void createPlatforms() {
+	srand(GLUT_ELAPSED_TIME);
+	int numberOfPlatforms = rand() % 5 + 1;
+	for (int i = 0; i <= numberOfPlatforms; i++) {
+		vector<int> p = { 
+			rand() % windowX,  //X position
+			(100 * (i + 1)),  //Y position
+			rand() % 150 + 75,  //Width
+			25 }; //Height
+		platforms.push_back(p); //Add to list of platforms.
+	}
+}
 
 void myinit(void)
 {
@@ -43,6 +53,7 @@ void myinit(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0.0, windowX, 0.0, windowY);
+	createPlatforms();
 }
 
 void setPixel(GLint x, GLint y)
