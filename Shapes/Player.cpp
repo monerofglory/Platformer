@@ -43,11 +43,16 @@ void updatePlayerPosition(int dT) {
 	if (jumping) {
 		playerY = startY + (sinf((framesSinceJump / 60) * M_PI) * jumpHeight);
 		framesSinceJump++;
+		if (onFloor) {
+			jumping = false;
+			framesSinceJump = 0;
+		}
 		if (framesSinceJump == 60) {
 			playerY = startY;
 			jumping = false;
 			framesSinceJump = 0;
 		}
+		
 	}
 	//Gravity
 	if (!onFloor) {
@@ -81,5 +86,11 @@ bool isPlayerJumping() {
 
 void setPlayerJumping() {
 	jumping = true;
+	framesSinceJump = 1;
+	setColliding(false);
 	startY = playerY;
+}
+
+float getPlayerFramesSinceJump() {
+	return framesSinceJump;
 }

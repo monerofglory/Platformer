@@ -10,3 +10,4 @@ void setPlayerY(float y);
 void setColliding(bool t);
 bool isPlayerJumping();
 void setPlayerJumping();
+float getPlayerFramesSinceJump();
